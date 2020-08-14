@@ -1,37 +1,33 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
+
+	"github.com/google/uuid"
+	guuid "github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-type data struct {
-	id    string
-	value bool
-	key   string
+type Data struct {
+	Id    uuid.UUID `json:”id”`
+	Value bool      `json:"value"`
+	Key   string    `json:"key"`
 }
 
 func main() {
-	var obj1 data
-	obj1.id = "sadnsjkds"
-	obj1.value = true
-	obj1.key = "name"
-
-	db, err := gorm.Open("mysql", "user:password@/dbname?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	if err != nil {
+		fmt.Println("hi therr", err)
+	}
 	defer db.Close()
+	db.AutoMigrate(&Data{})
 
-	// Creates a gin router with default middleware
-	router := gin.Default()
+	user := Data{Id: guuid.New(), Value: false, Key: "hi there"}
 
-	// A handler for GET request on /example
-	router.GET("/", func(c *gin.Context) {
+	// fmt.Println(db.NewRecord(user)) // => returns `true` as primary key is blank
 
-		c.JSON(200, gin.H{
-			"id":    obj1.id,
-			"value": obj1.value,
-			"key":   obj1.key,
-		}) // gin.H is a shortcut for map[string]interface{}
-	})
-	router.Run() // listen and serve on port 8080
+	db.Create(&user)
+
+	fmt.Println(db.NewRecord(user))
 }
