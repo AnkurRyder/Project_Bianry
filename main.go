@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	guuid "github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+// Data struct for storing data to the DBß
 type Data struct {
 	Id    uuid.UUID `json:”id”`
 	Value bool      `json:"value"`
@@ -21,13 +23,24 @@ func main() {
 		fmt.Println("hi therr", err)
 	}
 	defer db.Close()
+
 	db.AutoMigrate(&Data{})
 
-	user := Data{Id: guuid.New(), Value: false, Key: "hi there"}
+	router := gin.Default()
 
-	// fmt.Println(db.NewRecord(user)) // => returns `true` as primary key is blank
+	router.GET("/:id", func(c *gin.Context) {
+		var userData Data
+		id := c.Param("id")
+		db.Where("Id = ?", id).First(&userData)
+		c.JSON(200, userData)
+	})
+	router.POST("/", func(c *gin.Context) {
+		user := Data{Id: guuid.New(), Value: false, Key: "hi there"}
+		c.BindJSON(&user)
+		db.Create(&user)
+		c.JSON(200, user)
+	})
+	router.Run()
 
-	db.Create(&user)
-
-	fmt.Println(db.NewRecord(user))
+	// fmt.Println(db.NewRecord(user))
 }
