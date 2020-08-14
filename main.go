@@ -35,9 +35,22 @@ func main() {
 		c.JSON(200, userData)
 	})
 	router.POST("/", func(c *gin.Context) {
-		user := Data{Id: guuid.New(), Value: false, Key: "hi there"}
+		user := Data{Id: guuid.New(), Value: false, Key: ""}
 		c.BindJSON(&user)
 		db.Create(&user)
+		c.JSON(200, user)
+	})
+
+	router.PATCH(":id", func(c *gin.Context) {
+		var userData Data
+		var user Data
+		id := c.Param("id")
+		user.Id, err = guuid.Parse(id)
+		if err != nil {
+			fmt.Println(err)
+		}
+		c.BindJSON(&user)
+		db.Model(&userData).Where("Id = ?", id).Update(map[string]interface{}{"Value": user.Value, "Key": user.Key})
 		c.JSON(200, user)
 	})
 	router.Run()
