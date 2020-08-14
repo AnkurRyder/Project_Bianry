@@ -53,6 +53,14 @@ func main() {
 		db.Model(&userData).Where("Id = ?", id).Update(map[string]interface{}{"Value": user.Value, "Key": user.Key})
 		c.JSON(200, user)
 	})
+	router.DELETE(":id", func(c *gin.Context) {
+		var user Data
+		id := c.Param("id")
+		user.Id, err = guuid.Parse(id)
+		// Check if data exists with given id
+		db.Delete(&user)
+		c.String(204, "No Content")
+	})
 	router.Run()
 
 	// fmt.Println(db.NewRecord(user))
