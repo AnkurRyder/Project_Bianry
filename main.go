@@ -17,12 +17,11 @@ type Data struct {
 	Key   string `json:"key"`
 }
 
-var db *gorm.DB
 var err error
 
 func main() {
 
-	db, err = gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		fmt.Println("hi therr", err)
 	}
@@ -30,28 +29,28 @@ func main() {
 
 	db.AutoMigrate(&Data{})
 
-	router := setupRouter()
+	router := setupRouter(db)
 
 	router.Run()
 
 	// fmt.Println(db.NewRecord(user))
 }
 
-func setupRouter() *gin.Engine {
+func setupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/:id", getData())
+	router.GET("/:id", getData(db))
 
-	router.POST("/", writeData())
+	router.POST("/", writeData(db))
 
-	router.PATCH(":id", modifyData())
+	router.PATCH(":id", modifyData(db))
 
-	router.DELETE(":id", deleteData())
+	router.DELETE(":id", deleteData(db))
 
 	return router
 }
 
-func getData() gin.HandlerFunc {
+func getData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var userData Data
 		id := c.Param("id")
@@ -60,7 +59,7 @@ func getData() gin.HandlerFunc {
 	}
 }
 
-func writeData() gin.HandlerFunc {
+func writeData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := Data{ID: guuid.New(), Value: false, Key: ""}
 		c.BindJSON(&user)
@@ -69,7 +68,7 @@ func writeData() gin.HandlerFunc {
 	}
 }
 
-func modifyData() gin.HandlerFunc {
+func modifyData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var userData Data
 		var user Data
@@ -84,7 +83,7 @@ func modifyData() gin.HandlerFunc {
 	}
 }
 
-func deleteData() gin.HandlerFunc {
+func deleteData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user Data
 		id := c.Param("id")
