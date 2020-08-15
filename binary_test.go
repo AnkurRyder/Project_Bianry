@@ -85,15 +85,15 @@ func TestPatch(t *testing.T) {
 		t.Errorf("DataBase Connection failed")
 	}
 	defer db.Close()
-	request := []byte("{\"value\": true, \"key\": \"hi there checking \"}")
+	request := []byte("{\"value\": true,\"key\": \"hi there checking update\"}")
 
 	url := host + ID
 
+	// NewRequest returns a new incoming server
 	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(request))
 	if err != nil {
 		t.Errorf("PATCH request failed")
 	}
-	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
 	handler := setupRouter(db)
@@ -103,6 +103,10 @@ func TestPatch(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		fmt.Println(rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	s := fmt.Sprintf("{\"ID\":\"%s\",\"value\":true,\"key\":\"hi there checking update\"}", ID)
+	if strings.Compare(rr.Body.String(), s) != 0 {
+		t.Errorf("Output not as expected, expected this %s got this %s", rr.Body.String(), s)
 	}
 }
 
@@ -128,6 +132,6 @@ func TestDelete(t *testing.T) {
 
 	if status := rr.Code; status != 204 {
 		fmt.Println(rr.Body.String())
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("handler returned wrong status code: got %v want %v", status, 204)
 	}
 }
