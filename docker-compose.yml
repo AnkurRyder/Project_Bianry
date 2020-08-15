@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  project_binary:
+    image: project_binary
+    build: .
+    ports:
+      - 8080
