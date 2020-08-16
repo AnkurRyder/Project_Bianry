@@ -21,7 +21,7 @@ var err error
 
 func main() {
 
-	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:Stark9415@tcp(docker.for.mac.localhost:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		fmt.Println("hi therr", err)
 	}
@@ -32,8 +32,6 @@ func main() {
 	router := setupRouter(db)
 
 	router.Run()
-
-	// fmt.Println(db.NewRecord(user))
 }
 
 func setupRouter(db *gorm.DB) *gin.Engine {
