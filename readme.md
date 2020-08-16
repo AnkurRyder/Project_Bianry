@@ -98,3 +98,5 @@ HTTP 204 No Content
 ## For Testing
 
 `$ go test`
+
+## Before running the API create Database and edit the connection string

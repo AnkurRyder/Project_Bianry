@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	guuid "github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/joho/godotenv"
 )
 
 // Data struct for storing data to the DBß
@@ -18,10 +21,11 @@ type Data struct {
 }
 
 var err error
+var dbConStringMain string = "%s:%s@tcp(docker.for.mac.localhost:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 
 func main() {
-
-	db, err := gorm.Open("mysql", "root:Stark9415@tcp(docker.for.mac.localhost:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	dbString := getDBString(dbConStringMain)
+	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
 		fmt.Println("hi therr", err)
 	}
@@ -32,6 +36,25 @@ func main() {
 	router := setupRouter(db)
 
 	router.Run()
+}
+
+func getDBString(dbConStringMain string) string {
+	dbName := goDotEnvVariable("DB_NAME")
+	password := goDotEnvVariable("Password")
+	user := goDotEnvVariable("user")
+	return fmt.Sprintf(dbConStringMain, user, password, dbName)
+}
+
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	return os.Getenv(key)
 }
 
 func setupRouter(db *gorm.DB) *gin.Engine {

@@ -13,11 +13,12 @@ import (
 )
 
 var ID string
-
+var dbConString string = "%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 var host string = "http://127.0.0.1:8080/"
 
 func TestMain(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	dbString := getDBString(dbConString)
+	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
 		t.Errorf("DataBase Connection failed")
 	}
@@ -25,7 +26,8 @@ func TestMain(t *testing.T) {
 }
 
 func TestPOST(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	dbString := getDBString(dbConString)
+	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
 		t.Errorf("DataBase Connection failed")
 	}
@@ -51,7 +53,8 @@ func TestPOST(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	dbString := getDBString(dbConString)
+	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
 		t.Errorf("DataBase Connection failed")
 	}
@@ -80,7 +83,8 @@ func TestGet(t *testing.T) {
 }
 
 func TestPatch(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	dbString := getDBString(dbConString)
+	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
 		t.Errorf("DataBase Connection failed")
 	}
@@ -111,7 +115,8 @@ func TestPatch(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:Stark9415@tcp(127.0.0.1:3306)/project_binary?charset=utf8&parseTime=True&loc=Local")
+	dbString := getDBString(dbConString)
+	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
 		t.Errorf("DataBase Connection failed")
 	}
