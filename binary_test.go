@@ -1,6 +1,8 @@
 package main
 
 import (
+	"Project_binary/db"
+	"Project_binary/types"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -15,10 +17,10 @@ import (
 var ID string
 var dbConString string = "%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 var host string = "http://127.0.0.1:8080/"
-var db *gorm.DB
+var dbtest *gorm.DB
 
 func TestMain(t *testing.T) {
-	db = dbConnection(dbConString)
+	dbtest = db.DbConnection(dbConString)
 }
 
 func TestPOST(t *testing.T) {
@@ -30,10 +32,10 @@ func TestPOST(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(db)
+	handler := setupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
-	var tempData Data
+	var tempData types.Data
 	_ = json.Unmarshal([]byte(rr.Body.String()), &tempData)
 	ID = tempData.ID.String()
 	if status := rr.Code; status != http.StatusOK {
@@ -52,7 +54,7 @@ func TestGet(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(db)
+	handler := setupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -77,7 +79,7 @@ func TestPatch(t *testing.T) {
 	}
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(db)
+	handler := setupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -92,7 +94,7 @@ func TestPatch(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	defer db.Close()
+	defer dbtest.Close()
 	url := host + ID
 
 	req, err := http.NewRequest("DELETE", url, nil)
@@ -102,7 +104,7 @@ func TestDelete(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(db)
+	handler := setupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 

@@ -1,4 +1,4 @@
-module Users/ankurjaiswal/Documents/Project_binary
+module Project_binary
 
 go 1.15
 
