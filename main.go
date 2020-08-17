@@ -45,6 +45,7 @@ func getDBString(dbConStringMain string) string {
 	return fmt.Sprintf(dbConStringMain, user, password, dbName)
 }
 
+// Return value from env file
 func goDotEnvVariable(key string) string {
 
 	// load .env file
