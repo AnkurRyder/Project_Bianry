@@ -20,11 +20,12 @@ func Login(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var u types.User
 		var user types.User
-		if err := c.ShouldBindJSON(&u); err != nil {
+		err := c.ShouldBindJSON(&u)
+		if err != nil {
 			c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
 			return
 		}
-		db.Where("Username = ?", u.Username).First(&user)
+		db.Where("username = ?", u.Username).First(&user)
 		//compare the user from the request, with the one we defined:
 		if user.Username != u.Username || user.Password != u.Password {
 			c.JSON(http.StatusUnauthorized, "Please provide valid login details")
