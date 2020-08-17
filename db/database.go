@@ -10,7 +10,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func DbConnection(dbTemp string) *gorm.DB {
+// Connection function to return gorm db pointer
+func Connection(dbTemp string) *gorm.DB {
 	dbString := getDBString(dbTemp)
 	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
@@ -18,18 +19,19 @@ func DbConnection(dbTemp string) *gorm.DB {
 	}
 	db.AutoMigrate(&(types.Data{}))
 	db.AutoMigrate(&(types.User{}))
+	db.AutoMigrate(&(types.TokenMeta{}))
 	return db
 }
 
 func getDBString(dbConStringMain string) string {
-	dbName := goDotEnvVariable("DB_NAME")
-	password := goDotEnvVariable("Password")
-	user := goDotEnvVariable("user")
+	dbName := GoDotEnvVariable("DB_NAME")
+	password := GoDotEnvVariable("Password")
+	user := GoDotEnvVariable("user")
 	return fmt.Sprintf(dbConStringMain, user, password, dbName)
 }
 
-// Return value from env file
-func goDotEnvVariable(key string) string {
+// GoDotEnvVariable Return value from env file
+func GoDotEnvVariable(key string) string {
 
 	// load .env file
 	err := godotenv.Load(".env")

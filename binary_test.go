@@ -20,7 +20,7 @@ var host string = "http://127.0.0.1:8080/"
 var dbtest *gorm.DB
 
 func TestMain(t *testing.T) {
-	dbtest = db.DbConnection(dbConString)
+	dbtest = db.Connection(dbConString)
 }
 
 func TestPOST(t *testing.T) {

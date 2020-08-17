@@ -3,6 +3,7 @@ package network
 import (
 	"Project_binary/types"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
@@ -11,8 +12,16 @@ import (
 
 var err error
 
+// GetData function to return Handler for get request
 func GetData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		err = CheckAuth(c, db)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
 		var userData types.Data
 		id := c.Param("id")
 		db.Where("Id = ?", id).First(&userData)
@@ -20,8 +29,14 @@ func GetData(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// WriteData function to return Handler for POST request
 func WriteData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		err = CheckAuth(c, db)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			return
+		}
 		user := types.Data{ID: guuid.New(), Value: false, Key: ""}
 		c.BindJSON(&user)
 		db.Create(&user)
@@ -29,8 +44,14 @@ func WriteData(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// ModifyData function to return Handler for PATCH request
 func ModifyData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		err = CheckAuth(c, db)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			return
+		}
 		var userData types.Data
 		var user types.Data
 		id := c.Param("id")
@@ -44,8 +65,14 @@ func ModifyData(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// DeleteData function to return Handler for DELETE request
 func DeleteData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		err = CheckAuth(c, db)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			return
+		}
 		var user types.Data
 		id := c.Param("id")
 		user.ID, err = guuid.Parse(id)

@@ -13,7 +13,7 @@ var err error
 var dbConStringMain string = "%s:%s@tcp(docker.for.mac.localhost:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 
 func main() {
-	db := db.DbConnection(dbConStringMain)
+	db := db.Connection(dbConStringMain)
 
 	defer db.Close()
 
