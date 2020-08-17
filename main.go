@@ -20,22 +20,35 @@ type Data struct {
 	Key   string `json:"key"`
 }
 
+// User struct for storing user credentials to DB
+type User struct {
+	ID       uint64 `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 var err error
 var dbConStringMain string = "%s:%s@tcp(docker.for.mac.localhost:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 
 func main() {
-	dbString := getDBString(dbConStringMain)
-	db, err := gorm.Open("mysql", dbString)
-	if err != nil {
-		fmt.Println("hi therr", err)
-	}
-	defer db.Close()
+	db := dbConnection(dbConStringMain)
 
-	db.AutoMigrate(&Data{})
+	defer db.Close()
 
 	router := setupRouter(db)
 
 	router.Run()
+}
+
+func dbConnection(dbTemp string) *gorm.DB {
+	dbString := getDBString(dbTemp)
+	db, err := gorm.Open("mysql", dbString)
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.AutoMigrate(&Data{})
+	db.AutoMigrate(&User{})
+	return db
 }
 
 func getDBString(dbConStringMain string) string {
@@ -97,7 +110,7 @@ func modifyData(db *gorm.DB) gin.HandlerFunc {
 		id := c.Param("id")
 		user.ID, err = guuid.Parse(id)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 		c.BindJSON(&user)
 		db.Model(&userData).Where("Id = ?", id).Update(map[string]interface{}{"Value": user.Value, "Key": user.Key})

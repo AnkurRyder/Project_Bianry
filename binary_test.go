@@ -15,23 +15,13 @@ import (
 var ID string
 var dbConString string = "%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 var host string = "http://127.0.0.1:8080/"
+var db *gorm.DB
 
 func TestMain(t *testing.T) {
-	dbString := getDBString(dbConString)
-	db, err := gorm.Open("mysql", dbString)
-	if err != nil {
-		t.Errorf("DataBase Connection failed")
-	}
-	defer db.Close()
+	db = dbConnection(dbConString)
 }
 
 func TestPOST(t *testing.T) {
-	dbString := getDBString(dbConString)
-	db, err := gorm.Open("mysql", dbString)
-	if err != nil {
-		t.Errorf("DataBase Connection failed")
-	}
-	defer db.Close()
 	request := []byte("{\"value\": true, \"key\": \"hi there checking\"}")
 	req, err := http.NewRequest("POST", host, bytes.NewBuffer(request))
 	if err != nil {
@@ -53,13 +43,6 @@ func TestPOST(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	dbString := getDBString(dbConString)
-	db, err := gorm.Open("mysql", dbString)
-	if err != nil {
-		t.Errorf("DataBase Connection failed")
-	}
-	defer db.Close()
-
 	url := host + ID
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -83,12 +66,6 @@ func TestGet(t *testing.T) {
 }
 
 func TestPatch(t *testing.T) {
-	dbString := getDBString(dbConString)
-	db, err := gorm.Open("mysql", dbString)
-	if err != nil {
-		t.Errorf("DataBase Connection failed")
-	}
-	defer db.Close()
 	request := []byte("{\"value\": true,\"key\": \"hi there checking update\"}")
 
 	url := host + ID
@@ -115,13 +92,7 @@ func TestPatch(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	dbString := getDBString(dbConString)
-	db, err := gorm.Open("mysql", dbString)
-	if err != nil {
-		t.Errorf("DataBase Connection failed")
-	}
 	defer db.Close()
-
 	url := host + ID
 
 	req, err := http.NewRequest("DELETE", url, nil)
