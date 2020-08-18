@@ -6,6 +6,7 @@
 - Gin
 - MySql
 - Docker
+- JWT
 
 ## Docker Image availble at DockerHub
 
@@ -28,6 +29,30 @@
 
 ## Functions Example
 
+### POST (LOGIN)
+
+``` json
+POST /login
+request:
+
+{
+  "username":"<username>"
+  "password":"<password>"
+}
+
+response:
+
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NfdXVpZCI6ImVhMzE1ZTBhLTA1NWEtNDc2ZS1hODRkLWE1YmZiNzJkYWYzZSIsImF1dGhvcml6ZWQiOnRydWUsImV4cCI6MTU5NzcxNjQ5MCwidXNlcl9pZCI6MX0.O3JuoY0Q78XgALIU3nLzA_G0YR8r-M2NHsMCku2vkmg"
+```
+
+## **Add Authentication Token in header on hitting service**
+
+## Token Expiry Time is 1 Minute
+
+## Header Format
+
+`Authentication: Bearer <Token>`
+
 ### POST
 
 ``` json
@@ -36,7 +61,7 @@ request:
 
 {
   "value":true,
-   "key": "name" // this is optional
+   "key": "name(Optional)"
 }
 
 response:
@@ -70,7 +95,7 @@ request:
 
 {
   "value":false,
-  "key": "new name" // this is optional
+  "key": "new name(Optional)"
 }
 
 response:
@@ -95,8 +120,10 @@ HTTP 204 No Content
 
 `$ go install`
 
+`$ ./Project_binary`
+
 ## For Testing
 
 `$ go test`
 
-## Before running the API create Database and edit the env file
+## **Attention**: Before running the API edit the env file, add Database username and password

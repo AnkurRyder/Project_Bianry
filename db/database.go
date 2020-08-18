@@ -2,6 +2,7 @@ package db
 
 import (
 	"Project_binary/types"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +14,7 @@ import (
 // Connection function to return gorm db pointer
 func Connection(dbTemp string) *gorm.DB {
 	dbString := getDBString(dbTemp)
+	createIfNotPresent()
 	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
 		log.Fatal(err)
@@ -21,6 +23,22 @@ func Connection(dbTemp string) *gorm.DB {
 	db.AutoMigrate(&(types.User{}))
 	db.AutoMigrate(&(types.TokenMeta{}))
 	return db
+}
+
+func createIfNotPresent() {
+	name := GoDotEnvVariable("DB_NAME")
+	user := "%s:%s@tcp(127.0.0.1:3306)/"
+	user = fmt.Sprintf(user, GoDotEnvVariable("user"), GoDotEnvVariable("Password"))
+	db, err := sql.Open("mysql", user)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func getDBString(dbConStringMain string) string {
