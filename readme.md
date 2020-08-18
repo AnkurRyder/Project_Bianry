@@ -14,6 +14,8 @@
 
 `$ docker pull imankurj/binary`
 
+### **Before running the container make/download [link](.env) the .env file and make the appropriate changes**
+
 ### To run container
 
 `$ docker run --rm -p 8080:8080 --env-file .env imankurj/binary:auth:added`
@@ -126,4 +128,4 @@ HTTP 204 No Content
 
 `$ go test`
 
-## **Attention**: Before running the API edit the env file, add Database username and password
+## **Attention**: Before running/testing the API locally edit the env file, add Database username and password
