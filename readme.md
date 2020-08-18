@@ -16,7 +16,7 @@
 
 ### To run container
 
-`$ docker run --rm -p 8080:8080 imankurj/binary`
+`$ docker run --rm -p 8080:8080 --env-file .env imankurj/binary:auth:added`
 
 ## API Services
 
