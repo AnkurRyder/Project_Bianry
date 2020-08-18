@@ -10,7 +10,7 @@ import (
 )
 
 var err error
-var dbConStringMain string = "%s:%s@tcp(docker.for.mac.localhost:3306)/%s?charset=utf8&parseTime=True&loc=Local"
+var dbConStringMain string = "%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 
 func main() {
 	db := db.Connection(dbConStringMain)
