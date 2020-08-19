@@ -12,7 +12,7 @@
 
 ### To pull image run following command
 
-`$ docker pull imankurj/binary`
+`$ docker pull imankurj/binary:auth_added`
 
 ### **Before running the container make/download [link](.env) the .env file and make the appropriate changes**
 
@@ -30,6 +30,23 @@
 ### API Endpoint localhost:8080
 
 ## Functions Example
+
+### POST (SIGNUP)
+
+``` json
+POST /signup
+request:
+
+{
+  "username":"<username>"
+  "password":"<password>"
+}
+
+response:
+{
+  "Account Created"
+}
+```
 
 ### POST (LOGIN)
 
@@ -116,6 +133,17 @@ DELETE /:id
 
 response:
 HTTP 204 No Content
+```
+
+### POST (LOGOUT)
+
+``` json
+POST /logout
+
+response:
+{
+  "Successfully logged out"
+}
 ```
 
 ## To Run locally
