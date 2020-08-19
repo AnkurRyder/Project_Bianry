@@ -74,9 +74,17 @@ func DeleteData(db *gorm.DB) gin.HandlerFunc {
 		}
 		var user types.Data
 		id := c.Param("id")
-		user.ID, err = guuid.Parse(id)
-		// Check if data exists with given id
+		idUUID, err := guuid.Parse(id)
+		if err != nil {
+			c.String(http.StatusBadRequest, "Wrong ID")
+			return
+		}
+		db.Where("Id = ?", idUUID).First(&user)
+		if user.ID != idUUID {
+			c.String(http.StatusBadRequest, "Wrong ID or no data exists")
+			return
+		}
 		db.Delete(&user)
-		c.String(204, "No Content")
+		c.JSON(204, "No Content")
 	}
 }

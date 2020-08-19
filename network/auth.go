@@ -86,9 +86,6 @@ func deleteAuth(givenUUID string, db *gorm.DB) (int64, error) {
 		return 0, errors.New("Already Logged out")
 	}
 	db.Delete(&tokenTemp)
-	// if db.NewRecord(tokenTemp) {
-	// 	return 1
-	// }
 	return 1, nil
 }
 
