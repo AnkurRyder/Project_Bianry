@@ -25,6 +25,8 @@ func main() {
 func setupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 
+	router.POST("/signup", network.SignUp(db))
+
 	router.POST("/login", network.Login(db))
 
 	router.GET("/:id", network.GetData(db))

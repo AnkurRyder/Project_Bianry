@@ -41,6 +41,26 @@ func Login(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// SignUp function for user dignup
+func SignUp(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var userData types.User
+		var userDbCheck types.User
+		err := c.ShouldBindJSON(&userData)
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
+			return
+		}
+		db.Where("username = ?", userData.Username).First(&userDbCheck)
+		if userDbCheck.Username == userData.Username {
+			c.JSON(http.StatusForbidden, "Username already exists")
+			return
+		}
+		db.Create(&userData)
+		c.JSON(http.StatusCreated, "Account Created")
+	}
+}
+
 // CheckAuth for checking auth
 func CheckAuth(c *gin.Context, db *gorm.DB) error {
 	tokenAuth, err := ExtractTokenMetadata(c.Request)
