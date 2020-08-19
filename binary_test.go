@@ -24,6 +24,25 @@ func TestMain(t *testing.T) {
 	dbtest = db.Connection(dbConString)
 }
 
+func TestSignup(t *testing.T) {
+	request := []byte("{\"username\": \"test\", \"password\": \"pass\"}")
+	req, err := http.NewRequest("POST", host+"signup", bytes.NewBuffer(request))
+	if err != nil {
+		t.Errorf("POST request failed")
+	}
+	// NewRequest returns a new incoming server
+	rr := httptest.NewRecorder()
+
+	handler := setupRouter(dbtest)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+}
+
 func TestLogin(t *testing.T) {
 	request := []byte("{\"username\": \"test\", \"password\": \"pass\"}")
 	req, err := http.NewRequest("POST", host+"login", bytes.NewBuffer(request))
