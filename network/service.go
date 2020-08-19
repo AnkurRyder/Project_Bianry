@@ -21,7 +21,6 @@ func GetData(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, "unauthorized")
 			return
 		}
-
 		var userData types.Data
 		id := c.Param("id")
 		db.Where("Id = ?", id).First(&userData)

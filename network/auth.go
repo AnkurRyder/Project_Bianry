@@ -3,6 +3,7 @@ package network
 import (
 	"Project_binary/db"
 	"Project_binary/types"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -59,6 +60,36 @@ func SignUp(db *gorm.DB) gin.HandlerFunc {
 		db.Create(&userData)
 		c.JSON(http.StatusCreated, "Account Created")
 	}
+}
+
+// Logout function for user to logout
+func Logout(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		au, err := ExtractTokenMetadata(c.Request)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			return
+		}
+		deleted, err := deleteAuth(au.AccessUuid, db)
+		if deleted == 0 || err != nil { //if any goes wrong
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			return
+		}
+		c.JSON(http.StatusOK, "Successfully logged out")
+	}
+}
+
+func deleteAuth(givenUUID string, db *gorm.DB) (int64, error) {
+	var tokenTemp types.TokenMeta
+	db.Where("acces_id = ?", givenUUID).First(&tokenTemp)
+	if tokenTemp.AccesID != givenUUID {
+		return 0, errors.New("Already Logged out")
+	}
+	db.Delete(&tokenTemp)
+	// if db.NewRecord(tokenTemp) {
+	// 	return 1
+	// }
+	return 1, nil
 }
 
 // CheckAuth for checking auth
@@ -160,5 +191,8 @@ func ExtractTokenMetadata(r *http.Request) (*types.AccessDetails, error) {
 func FetchAuth(authD *types.AccessDetails, db *gorm.DB) (uint64, error) {
 	var tokenMeta types.TokenMeta
 	db.Where("acces_id = ?", authD.AccessUuid).First(&tokenMeta)
+	if tokenMeta.AccesID != authD.AccessUuid {
+		return 0, errors.New("Token Expired")
+	}
 	return tokenMeta.UserID, nil
 }

@@ -29,7 +29,9 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	router.POST("/login", network.Login(db))
 
-	router.GET("/:id", network.GetData(db))
+	router.POST("/logout", network.Logout(db))
+
+	router.GET(":id", network.GetData(db))
 
 	router.POST("/", network.WriteData(db))
 
