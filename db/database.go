@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/jinzhu/gorm"
-	"github.com/joho/godotenv"
 )
 
 // Connection function to return gorm db pointer
@@ -27,7 +26,7 @@ func Connection(dbTemp string) *gorm.DB {
 
 func createIfNotPresent() {
 	name := GoDotEnvVariable("DB_NAME")
-	user := "%s:%s@tcp(127.0.0.1:3306)/"
+	user := "%s:%s@tcp(docker.for.mac.localhost:3307)/"
 	user = fmt.Sprintf(user, GoDotEnvVariable("user"), GoDotEnvVariable("Password"))
 	db, err := sql.Open("mysql", user)
 	if err != nil {
@@ -52,11 +51,11 @@ func getDBString(dbConStringMain string) string {
 func GoDotEnvVariable(key string) string {
 
 	// load .env file
-	err := godotenv.Load(".env")
+	// err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	// if err != nil {
+	// 	log.Fatalf("Error loading .env file")
+	// }
 
 	return os.Getenv(key)
 }
