@@ -14,6 +14,8 @@ import (
 // Connection function to return gorm db pointer
 func Connection(dbTemp string) *gorm.DB {
 	dbString := getDBString(dbTemp)
+	dbName := GoDotEnvVariable("DB_NAME")
+	dbString = fmt.Sprintf(dbString, dbName)
 	createIfNotPresent()
 	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
@@ -26,26 +28,27 @@ func Connection(dbTemp string) *gorm.DB {
 }
 
 func createIfNotPresent() {
-	name := GoDotEnvVariable("DB_NAME")
-	user := "%s:%s@tcp(fullstack-mysql:3306)/"
-	user = fmt.Sprintf(user, GoDotEnvVariable("user"), GoDotEnvVariable("Password"))
+	dbName := GoDotEnvVariable("DB_NAME")
+	user := "%s:%s@tcp(%s:%s)/"
+	user = getDBString(user)
 	db, err := sql.Open("mysql", user)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + dbName)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func getDBString(dbConStringMain string) string {
-	dbName := GoDotEnvVariable("DB_NAME")
 	password := GoDotEnvVariable("Password")
 	user := GoDotEnvVariable("user")
-	return fmt.Sprintf(dbConStringMain, user, password, dbName)
+	host := GoDotEnvVariable("HOST_NAME")
+	port := GoDotEnvVariable("PORT")
+	return fmt.Sprintf(dbConStringMain, user, password, host, port)
 }
 
 // GoDotEnvVariable Return value from env file

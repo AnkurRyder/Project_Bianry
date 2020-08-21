@@ -11,7 +11,7 @@ import (
 )
 
 var err error
-var dbConStringMain string = "%s:%s@tcp(fullstack-mysql:3306)/%s?charset=utf8&parseTime=True&loc=Local"
+var dbConStringMain string = "%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local"
 
 func main() {
 	time.Sleep(5 * time.Second)
