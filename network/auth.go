@@ -16,70 +16,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Login function for helping user to login
-func Login(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var u types.User
-		var user types.User
-		err := c.ShouldBindJSON(&u)
-		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
-			return
-		}
-		db.Where("username = ?", u.Username).First(&user)
-		//compare the user from the request, with the one we defined:
-		if user.Username != u.Username || user.Password != u.Password {
-			c.JSON(http.StatusUnauthorized, "Please provide valid login details")
-			return
-		}
-		token, err := createToken(user.ID)
-		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, err.Error())
-			return
-		}
-		createAuth(user.ID, token, db)
-		c.JSON(http.StatusOK, token.AccessToken)
-	}
-}
-
-// SignUp function for user dignup
-func SignUp(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var userData types.User
-		var userDbCheck types.User
-		err := c.ShouldBindJSON(&userData)
-		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
-			return
-		}
-		db.Where("username = ?", userData.Username).First(&userDbCheck)
-		if userDbCheck.Username == userData.Username {
-			c.JSON(http.StatusForbidden, "Username already exists")
-			return
-		}
-		db.Create(&userData)
-		c.JSON(http.StatusCreated, "Account Created")
-	}
-}
-
-// Logout function for user to logout
-func Logout(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		au, err := ExtractTokenMetadata(c.Request)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, "unauthorized")
-			return
-		}
-		deleted, err := deleteAuth(au.AccessUuid, db)
-		if deleted == 0 || err != nil { //if any goes wrong
-			c.JSON(http.StatusUnauthorized, "unauthorized")
-			return
-		}
-		c.JSON(http.StatusOK, "Successfully logged out")
-	}
-}
-
-func deleteAuth(givenUUID string, db *gorm.DB) (int64, error) {
+// DeleteAuth function deletes metadata from db
+func DeleteAuth(givenUUID string, db *gorm.DB) (int64, error) {
 	var tokenTemp types.TokenMeta
 	db.Where("acces_id = ?", givenUUID).First(&tokenTemp)
 	if tokenTemp.AccesID != givenUUID {
@@ -90,20 +28,26 @@ func deleteAuth(givenUUID string, db *gorm.DB) (int64, error) {
 }
 
 // CheckAuth for checking auth
-func CheckAuth(c *gin.Context, db *gorm.DB) error {
-	tokenAuth, err := ExtractTokenMetadata(c.Request)
-	if err != nil {
-		return err
+func CheckAuth(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenAuth, err := ExtractTokenMetadata(c.Request)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			c.Abort()
+			return
+		}
+		_, err = FetchAuth(tokenAuth, db)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, "unauthorized")
+			c.Abort()
+			return
+		}
+		c.Next()
 	}
-	_, err = FetchAuth(tokenAuth, db)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // CreateToken function generating token for the user
-func createToken(userID uint64) (*types.TokenDetails, error) {
+func CreateToken(userID uint64) (*types.TokenDetails, error) {
 	var err error
 	td := &types.TokenDetails{}
 	td.AtExpires = time.Now().Add(time.Minute).Unix()
@@ -123,7 +67,8 @@ func createToken(userID uint64) (*types.TokenDetails, error) {
 	return td, nil
 }
 
-func createAuth(userid uint64, td *types.TokenDetails, db *gorm.DB) {
+// CreateAuth function for creating auth to db
+func CreateAuth(userid uint64, td *types.TokenDetails, db *gorm.DB) {
 	var tk types.TokenMeta
 	tk.AccesID = td.AccessUuid
 	tk.UserID = userid
@@ -172,10 +117,6 @@ func ExtractTokenMetadata(r *http.Request) (*types.AccessDetails, error) {
 		if err != nil {
 			return nil, err
 		}
-		// expTime, er := claims["exp"].(int64)
-		// if !er {
-		// 	return nil, err
-		// }
 		return &types.AccessDetails{
 			AccessUuid: accessUUID,
 			UserId:     userID,

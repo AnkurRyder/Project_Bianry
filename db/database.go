@@ -11,11 +11,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// DBConStringMain for connecting to DB
+var DBConStringMain string = "%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local"
+
 // Connection function to return gorm db pointer
 func Connection(dbTemp string) *gorm.DB {
 	dbString := getDBString(dbTemp)
-	dbName := GoDotEnvVariable("DB_NAME")
-	dbString = fmt.Sprintf(dbString, dbName)
 	createIfNotPresent()
 	db, err := gorm.Open("mysql", dbString)
 	if err != nil {
@@ -30,7 +31,7 @@ func Connection(dbTemp string) *gorm.DB {
 func createIfNotPresent() {
 	dbName := GoDotEnvVariable("DB_NAME")
 	user := "%s:%s@tcp(%s:%s)/"
-	user = getDBString(user)
+	user = getDBUserString(user)
 	db, err := sql.Open("mysql", user)
 	if err != nil {
 		panic(err)
@@ -43,12 +44,21 @@ func createIfNotPresent() {
 	}
 }
 
-func getDBString(dbConStringMain string) string {
+func getDBUserString(dbConStringMain string) string {
 	password := GoDotEnvVariable("Password")
 	user := GoDotEnvVariable("user")
 	host := GoDotEnvVariable("HOST_NAME")
 	port := GoDotEnvVariable("PORT")
 	return fmt.Sprintf(dbConStringMain, user, password, host, port)
+}
+
+func getDBString(dbConStringMain string) string {
+	dbName := GoDotEnvVariable("DB_NAME")
+	password := GoDotEnvVariable("Password")
+	user := GoDotEnvVariable("user")
+	host := GoDotEnvVariable("HOST_NAME")
+	port := GoDotEnvVariable("PORT")
+	return fmt.Sprintf(dbConStringMain, user, password, host, port, dbName)
 }
 
 // GoDotEnvVariable Return value from env file
