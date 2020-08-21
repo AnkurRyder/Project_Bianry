@@ -3,6 +3,7 @@ package main
 import (
 	"Project_binary/db"
 	"Project_binary/network"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -10,9 +11,11 @@ import (
 )
 
 var err error
-var dbConStringMain string = "%s:%s@tcp(docker.for.mac.localhost:3307)/%s?charset=utf8&parseTime=True&loc=Local"
+var dbConStringMain string = "%s:%s@tcp(fullstack-mysql:3306)/%s?charset=utf8&parseTime=True&loc=Local"
 
 func main() {
+	time.Sleep(5 * time.Second)
+
 	db := db.Connection(dbConStringMain)
 
 	defer db.Close()

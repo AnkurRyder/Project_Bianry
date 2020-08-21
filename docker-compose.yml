@@ -2,8 +2,7 @@ version: '3.4'
 
 services:
   app:
-    container_name: first_binary
-    image: binary:auth_added_V2
+    image: binary:auth_added_V1.0
     build: .
     ports:
       - 8080:8080
@@ -23,9 +22,6 @@ services:
 
   fullstack-mysql:
     image: mysql:8.0.21
-    container_name: DB
-    ports:
-      - 3307:3306
     environment: 
       - MYSQL_USER=${user}
       - MYSQL_PASSWORD=${Password}
