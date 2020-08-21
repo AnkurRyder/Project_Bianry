@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-ozzo/ozzo-validation/is"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	guuid "github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
@@ -17,7 +19,13 @@ func GetData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var userData types.Data
 		id := c.Param("id")
+		err := validation.Validate(&id, validation.Required, is.UUID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
 		db.Where("Id = ?", id).First(&userData)
+		// Add validation
 		c.JSON(200, userData)
 	}
 }
@@ -27,6 +35,15 @@ func WriteData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := types.Data{ID: guuid.New(), Value: false, Key: ""}
 		c.BindJSON(&user)
+		err := validation.ValidateStruct(&user,
+			validation.Field(&user.ID, validation.Empty),
+			validation.Field(&user.Value, validation.Required),
+			validation.Field(&user.Key, validation.Required),
+		)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
 		db.Create(&user)
 		c.JSON(200, user)
 	}
@@ -38,11 +55,13 @@ func ModifyData(db *gorm.DB) gin.HandlerFunc {
 		var userData types.Data
 		var user types.Data
 		id := c.Param("id")
+		// Validate id
 		user.ID, err = guuid.Parse(id)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(err) // change it
 		}
 		c.BindJSON(&user)
+		// validate here
 		db.Model(&userData).Where("Id = ?", id).Update(map[string]interface{}{"Value": user.Value, "Key": user.Key})
 		c.JSON(200, user)
 	}
