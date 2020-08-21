@@ -2,6 +2,7 @@ package main
 
 import (
 	"Project_binary/db"
+	"Project_binary/network"
 	"Project_binary/types"
 	"bytes"
 	"encoding/json"
@@ -33,7 +34,7 @@ func TestSignup(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -52,7 +53,7 @@ func TestLogin(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -75,7 +76,7 @@ func TestPOST(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 	var tempData types.Data
@@ -98,7 +99,7 @@ func TestGet(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -124,7 +125,7 @@ func TestPatch(t *testing.T) {
 	}
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -150,7 +151,7 @@ func TestDelete(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
