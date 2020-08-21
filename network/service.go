@@ -15,7 +15,6 @@ var err error
 // GetData function to return Handler for get request
 func GetData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		err = CheckAuth(c, db)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, "unauthorized")

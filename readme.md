@@ -12,11 +12,15 @@
 
 ### To pull image run following command
 
-`$ docker pull imankurj/binary:auth_added`
+`$ docker pull imankurj/binary:auth_added_V1.0` // With Mysql Container
 
-### **Before running the container make/download [link](.env) the .env file and make the appropriate changes**
+`$ docker pull imankurj/binary:auth_added` // Without Mysql Container
+
+### **Before running the container make/download the [.env](.env) file and make the appropriate changes**
 
 ### To run container
+
+`$ docker run --rm -p 8080:8080 --env-file .env imankurj/binary:auth_added_V1.0`
 
 `$ docker run --rm -p 8080:8080 --env-file .env imankurj/binary:auth_added`
 
