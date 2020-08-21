@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -17,16 +18,19 @@ import (
 
 var ID string
 var tokenString string
-var dbConString string = "%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8&parseTime=True&loc=Local"
-var host string = "http://127.0.0.1:8080/"
+var dbConString string = "%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local"
+var host string = "http://%s:%s/"
 var dbtest *gorm.DB
 
-func TestMain(t *testing.T) {
+func TestMain(m *testing.M) {
 	dbtest = db.Connection(dbConString)
+	host = fmt.Sprintf(host, db.GoDotEnvVariable("HOST"), db.GoDotEnvVariable("PORT"))
+	defer dbtest.Close()
+	os.Exit(m.Run())
 }
 
 func TestSignup(t *testing.T) {
-	request := []byte("{\"username\": \"test\", \"password\": \"pass\"}")
+	request := []byte("{\"username\": \"test_me\", \"password\": \"pass\"}")
 	req, err := http.NewRequest("POST", host+"signup", bytes.NewBuffer(request))
 	if err != nil {
 		t.Errorf("POST request failed")
@@ -140,7 +144,7 @@ func TestPatch(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	defer dbtest.Close()
+
 	url := host + ID
 
 	req, err := http.NewRequest("DELETE", url, nil)
