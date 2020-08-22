@@ -1,8 +1,8 @@
 package network
 
 import (
+	"Project_binary/log"
 	"Project_binary/types"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,11 +21,13 @@ func GetData(db *gorm.DB) gin.HandlerFunc {
 		id := c.Param("id")
 		err := validation.Validate(&id, validation.Required, is.UUID)
 		if err != nil {
+			log.Slogger.Infof("Validation failed Error: %s", err.Error())
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
 		ok := db.Where("Id = ?", id).First(&userData).RecordNotFound()
 		if ok {
+			log.Slogger.Infof("for Id: %s record not found in db", id)
 			c.JSON(http.StatusBadRequest, "Record Not Found")
 			return
 		}
@@ -44,6 +46,7 @@ func WriteData(db *gorm.DB) gin.HandlerFunc {
 			validation.Field(&user.Key, validation.Required),
 		)
 		if err != nil {
+			log.Slogger.Infof("Validation failed Error: %s", err.Error())
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
@@ -60,6 +63,7 @@ func ModifyData(db *gorm.DB) gin.HandlerFunc {
 		id := c.Param("id")
 		err := validation.Validate(&id, validation.Required, is.UUID)
 		if err != nil {
+			log.Slogger.Infof("Validation failed Error: %s", err.Error())
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
@@ -70,17 +74,18 @@ func ModifyData(db *gorm.DB) gin.HandlerFunc {
 			validation.Field(&user.Key, validation.Required),
 		)
 		if err != nil {
+			log.Slogger.Infof("Validation failed Error: %s", err.Error())
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
 		user.ID, err = guuid.Parse(id)
 		if err != nil {
-			log.Fatal(err)
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 		n := db.Model(&userData).Where("Id = ?", id).Update(map[string]interface{}{"Value": user.Value, "Key": user.Key}).RowsAffected
 		if n == 0 {
+			log.Slogger.Infof("for Id: %s, could not update the record in db", id)
 			c.JSON(http.StatusInternalServerError, "Check Id")
 			return
 		}
@@ -124,6 +129,7 @@ func Login(db *gorm.DB) gin.HandlerFunc {
 			validation.Field(&u.Password, validation.Required),
 		)
 		if err != nil {
+			log.Slogger.Infof("Validation failed Error: %s", err.Error())
 			c.String(http.StatusBadRequest, err.Error())
 			return
 		}
@@ -158,6 +164,7 @@ func SignUp(db *gorm.DB) gin.HandlerFunc {
 			validation.Field(&userData.Password, validation.Required),
 		)
 		if err != nil {
+			log.Slogger.Infof("Validation failed Error: %s", err.Error())
 			c.String(http.StatusBadRequest, err.Error())
 			return
 		}
