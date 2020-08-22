@@ -37,5 +37,4 @@ type TokenMeta struct {
 type AccessDetails struct {
 	AccessUuid string
 	UserId     uint64
-	//ExpTime    int64
 }

@@ -17,15 +17,18 @@ var err error
 // GetData function to return Handler for get request
 func GetData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var userData types.Data
+		userData := types.Data{}
 		id := c.Param("id")
 		err := validation.Validate(&id, validation.Required, is.UUID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
-		db.Where("Id = ?", id).First(&userData)
-		// Add validation
+		ok := db.Where("Id = ?", id).First(&userData).RecordNotFound()
+		if ok {
+			c.JSON(http.StatusBadRequest, "Record Not Found")
+			return
+		}
 		c.JSON(200, userData)
 	}
 }
@@ -55,14 +58,32 @@ func ModifyData(db *gorm.DB) gin.HandlerFunc {
 		var userData types.Data
 		var user types.Data
 		id := c.Param("id")
-		// Validate id
-		user.ID, err = guuid.Parse(id)
+		err := validation.Validate(&id, validation.Required, is.UUID)
 		if err != nil {
-			log.Fatal(err) // change it
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
 		}
 		c.BindJSON(&user)
-		// validate here
-		db.Model(&userData).Where("Id = ?", id).Update(map[string]interface{}{"Value": user.Value, "Key": user.Key})
+		err = validation.ValidateStruct(&user,
+			validation.Field(&user.ID, validation.Empty),
+			validation.Field(&user.Value, validation.Required),
+			validation.Field(&user.Key, validation.Required),
+		)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+		user.ID, err = guuid.Parse(id)
+		if err != nil {
+			log.Fatal(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		n := db.Model(&userData).Where("Id = ?", id).Update(map[string]interface{}{"Value": user.Value, "Key": user.Key}).RowsAffected
+		if n == 0 {
+			c.JSON(http.StatusInternalServerError, "Check Id")
+			return
+		}
 		c.JSON(200, user)
 	}
 }
@@ -97,8 +118,20 @@ func Login(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
 			return
 		}
-		db.Where("username = ?", u.Username).First(&user)
-		//compare the user from the request, with the one we defined:
+		err = validation.ValidateStruct(&u,
+			validation.Field(&u.ID, validation.Empty),
+			validation.Field(&u.Username, validation.Required),
+			validation.Field(&u.Password, validation.Required),
+		)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		ok := db.Where("username = ?", u.Username).First(&user).RecordNotFound()
+		if ok {
+			c.String(http.StatusBadRequest, "UserName Incorrct")
+			return
+		}
 		if user.Username != u.Username || user.Password != u.Password {
 			c.JSON(http.StatusUnauthorized, "Please provide valid login details")
 			return
@@ -119,6 +152,15 @@ func SignUp(db *gorm.DB) gin.HandlerFunc {
 		var userData types.User
 		var userDbCheck types.User
 		err := c.ShouldBindJSON(&userData)
+		err = validation.ValidateStruct(&userData,
+			validation.Field(&userData.ID, validation.Empty),
+			validation.Field(&userData.Username, validation.Required),
+			validation.Field(&userData.Password, validation.Required),
+		)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
 		if err != nil {
 			c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
 			return
@@ -142,7 +184,7 @@ func Logout(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		deleted, err := DeleteAuth(au.AccessUuid, db)
-		if deleted == 0 || err != nil { //if any goes wrong
+		if deleted == 0 || err != nil {
 			c.JSON(http.StatusUnauthorized, "unauthorized")
 			return
 		}
