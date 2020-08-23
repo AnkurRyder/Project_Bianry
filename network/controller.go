@@ -38,9 +38,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 // GetData function to return Handler for get request
 func getData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resp, err := GetDataHelper(c, db)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+		resp, errResp := GetDataHelper(c, db)
+		if errResp.Err != nil {
+			c.JSON(errResp.HTTPCode, errResp.Err.Error())
 			return
 		}
 		c.JSON(200, resp)
@@ -50,9 +50,9 @@ func getData(db *gorm.DB) gin.HandlerFunc {
 // WriteData function to return Handler for POST request
 func writeData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resp, err := WriteDataHelper(c, db)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+		resp, errResp := WriteDataHelper(c, db)
+		if errResp.Err != nil {
+			c.JSON(errResp.HTTPCode, errResp.Err.Error())
 			return
 		}
 		c.JSON(200, resp)
@@ -62,9 +62,9 @@ func writeData(db *gorm.DB) gin.HandlerFunc {
 // ModifyData function to return Handler for PATCH request
 func modifyData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resp, err := ModifyDataHelper(c, db)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+		resp, errResp := ModifyDataHelper(c, db)
+		if errResp.Err != nil {
+			c.JSON(errResp.HTTPCode, errResp.Err.Error())
 			return
 		}
 		c.JSON(200, resp)
@@ -74,9 +74,9 @@ func modifyData(db *gorm.DB) gin.HandlerFunc {
 // DeleteData function to return Handler for DELETE request
 func deleteData(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resp, err := ModifyDataHelper(c, db)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+		resp, errResp := ModifyDataHelper(c, db)
+		if errResp.Err != nil {
+			c.JSON(errResp.HTTPCode, errResp.Err.Error())
 			return
 		}
 		c.JSON(204, resp)
@@ -86,9 +86,9 @@ func deleteData(db *gorm.DB) gin.HandlerFunc {
 // Login function for helping user to login
 func login(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resp, err := LoginHelper(c, db)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+		resp, errResp := LoginHelper(c, db)
+		if errResp.Err != nil {
+			c.JSON(errResp.HTTPCode, errResp.Err.Error())
 			return
 		}
 		c.JSON(http.StatusOK, resp)
@@ -98,9 +98,9 @@ func login(db *gorm.DB) gin.HandlerFunc {
 // SignUp function for user dignup
 func signUp(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resp, err := SignUpHelper(c, db)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+		resp, errResp := SignUpHelper(c, db)
+		if errResp.Err != nil {
+			c.JSON(errResp.HTTPCode, errResp.Err.Error())
 			return
 		}
 		c.JSON(http.StatusCreated, resp)
@@ -110,9 +110,9 @@ func signUp(db *gorm.DB) gin.HandlerFunc {
 // Logout function for user to logout
 func logout(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resp, err := LogoutHelepr(c, db)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+		resp, errResp := LogoutHelepr(c, db)
+		if errResp.Err != nil {
+			c.JSON(errResp.HTTPCode, errResp.Err.Error())
 			return
 		}
 		c.JSON(http.StatusOK, resp)
