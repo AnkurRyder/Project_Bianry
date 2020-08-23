@@ -37,5 +37,10 @@ type TokenMeta struct {
 type AccessDetails struct {
 	AccessUuid string
 	UserId     uint64
-	//ExpTime    int64
+}
+
+// ErrorRes to return error and httpcode to the controller
+type ErrorRes struct {
+	HTTPCode int
+	Err      error
 }

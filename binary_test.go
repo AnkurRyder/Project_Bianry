@@ -2,12 +2,14 @@ package main
 
 import (
 	"Project_binary/db"
+	"Project_binary/network"
 	"Project_binary/types"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -16,16 +18,19 @@ import (
 
 var ID string
 var tokenString string
-var dbConString string = "%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8&parseTime=True&loc=Local"
-var host string = "http://127.0.0.1:8080/"
+var dbConString string = "%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local"
+var host string = "http://%s:%s/"
 var dbtest *gorm.DB
 
-func TestMain(t *testing.T) {
+func TestMain(m *testing.M) {
 	dbtest = db.Connection(dbConString)
+	host = fmt.Sprintf(host, db.GoDotEnvVariable("HOST"), db.GoDotEnvVariable("PORT"))
+	defer dbtest.Close()
+	os.Exit(m.Run())
 }
 
 func TestSignup(t *testing.T) {
-	request := []byte("{\"username\": \"test\", \"password\": \"pass\"}")
+	request := []byte("{\"username\": \"test_me\", \"password\": \"pass\"}")
 	req, err := http.NewRequest("POST", host+"signup", bytes.NewBuffer(request))
 	if err != nil {
 		t.Errorf("POST request failed")
@@ -33,7 +38,7 @@ func TestSignup(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -52,7 +57,7 @@ func TestLogin(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -75,7 +80,7 @@ func TestPOST(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 	var tempData types.Data
@@ -98,7 +103,7 @@ func TestGet(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -124,7 +129,7 @@ func TestPatch(t *testing.T) {
 	}
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
@@ -139,7 +144,7 @@ func TestPatch(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	defer dbtest.Close()
+
 	url := host + ID
 
 	req, err := http.NewRequest("DELETE", url, nil)
@@ -150,7 +155,7 @@ func TestDelete(t *testing.T) {
 	// NewRequest returns a new incoming server
 	rr := httptest.NewRecorder()
 
-	handler := setupRouter(dbtest)
+	handler := network.SetupRouter(dbtest)
 
 	handler.ServeHTTP(rr, req)
 
